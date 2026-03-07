@@ -3,6 +3,6 @@ function deleteTask(taskId)  {
         method:'POST',
         body:JSON.stringify({taskId: taskId}),
     }).then((_res) => {
-        window.location.href = "/";
+        window.location.href = "/task_page";
     });
 }
