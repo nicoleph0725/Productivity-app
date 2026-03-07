@@ -2,24 +2,5 @@
 {% block title %}Homepage{% endblock %}
 
 {% block content %}
-<h1 align="center">Tasks</h1>
-<br/>
-<form method = "POST"> 
-    <textarea name="task" id="task" class="form-control"></textarea>
-    <br/>
-    <div align="center">
-        <button type="submit" class="btn btn-primary">Add Task</button>
-    </div>
-</form>    
-
-<ul class="list-group list-group-flush" id="tasks">
-    {% for task in user.tasks %}
-    <li class="list-group-item">
-        {{ task.description }}
-        <button type="button" class="close" onClick="deleteTask('{{ task.id }}')">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </li>
-    {% endfor %}
-</ul>
+<h1 align="center">Homepage</h1>
 {% endblock %}
