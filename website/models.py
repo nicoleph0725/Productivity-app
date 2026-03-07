@@ -7,7 +7,7 @@ class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     #title = db.Column(db.String(150))
     description = db.Column(db.String(500), nullable=True)
-    #date_due = db.Column(db.Date(timezone-True), nullable=True )
+    task_due_date = db.Column(db.Date, nullable=False)
     #completed = db.Column(db.Boolean, default=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
