@@ -2,37 +2,86 @@
 {% block title %}Tasks{% endblock %}
 
 {% block content %}
-<h1 align="center">Tasks</h1>
-<br/>
-<form method = "POST"> 
-    <textarea name="task" id="task" class="form-control"></textarea>
-    <label for="task_due_date">Task Date:</label>
-    <input 
-        type="date" 
-        name="task_due_date" 
-        id="task_due_date" 
-        class="form-control" 
-        min="{{ today_date }}" 
-        required >
-    <br/>
-    <div align="center">
-        <button type="submit" class="btn btn-primary">Add Task</button>
-    </div>
-</form>    
+<div class="container-fluid">
+    <div class="row">
+        <div class="col p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Tasks</h1>
+                <button 
+                    class="btn btn-outline-primary" 
+                    type="button" 
+                    data-toggle="collapse" 
+                    data-target="#sidebarColumn">
+                    Toggle Sidebar
+                </button>
+            </div>
 
-<div id="tasks">
-    {% for header, tasks in grouped_tasks.items() %}
-        <h4 class="mt-4">{{ header }}</h4>
-        <ul class="list-group list-group-flush">
-            {% for task in tasks %}
-                <li class="list-group-item">
-                    {{ task.description }}
-                    <button type="button" class="close" onClick="deleteTask('{{ task.id }}')">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </li>
+            <form method="POST" class="mb-5 shadow-sm p-3 bg-white rounded"> 
+                <div class="form-group">
+                    <label for="task">Task Description:</label>
+                    <textarea name="task" id="task" class="form-control" placeholder="What needs doing?" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="task_due_date">Task Date:</label>
+                    <input 
+                        type="date" 
+                        name="task_due_date" 
+                        id="task_due_date" 
+                        class="form-control" 
+                        min="{{ today_date }}" 
+                        required> </div>
+                
+                <div align="center">
+                    <button type="submit" class="btn btn-primary px-5">Add Task</button>
+                </div>
+            </form>
+
+            <div id="tasks">
+                {% for header, tasks in grouped_tasks.items() %}
+                    {% if header not in ["Next week", "Future tasks"] %}
+                        <h4 class="mt-4 font-weight-bold text-dark border-bottom pb-2">{{ header }}</h4>
+                        <ul class="list-group list-group-flush mb-3">
+                            {% for task in tasks %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ task.description }}
+                                <button type="button" class="close text-danger" onClick="deleteTask('{{ task.id }}')">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="collapse col-md-4 bg-light border-left vh-100 p-4 shadow-sm" id="sidebarColumn">
+            <h5 class="font-weight-bold text-secondary">Other Tasks</h5>
+            <hr>
+            
+            {% for header, tasks in grouped_tasks.items() %}
+                {% if header in ["Next week", "Future tasks"] %}
+                    <h6 class="mt-4 font-weight-bold text-dark border-bottom pb-2">{{ header }}</h6>
+                    <ul class="list-group list-group-flush">
+                        {% for task in tasks %}
+                        <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center">
+                            <span class="text-muted">{{ task.description }}</span>
+                            <button type="button" class="close" onClick="deleteTask('{{ task.id }}')">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
             {% endfor %}
-        </ul>
-    {% endfor %}
+            
+            {% if not grouped_tasks %}
+                <p class="text-muted italic">No future tasks scheduled.</p>
+            {% endif %}
+        </div>
+
+    </div>
 </div>
+
 {% endblock %}

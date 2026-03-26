@@ -39,7 +39,7 @@ def task_page():
 
     # Sort tasks by date so they appear in order
     user_tasks = Task.query.filter_by(user_id=current_user.id).order_by(Task.task_due_date.asc()).all()
-    
+
     # Grouping logic
     grouped_tasks = {}
     for task in user_tasks:
