@@ -8,7 +8,8 @@ class Task(db.Model):
     #title = db.Column(db.String(150))
     description = db.Column(db.String(500), nullable=True)
     task_due_date = db.Column(db.Date, nullable=False)
-    #completed = db.Column(db.Boolean, default=False)
+    completed = db.Column(db.Boolean, default=False)
+    category = db.Column(db.String(100), default="other")
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
 
