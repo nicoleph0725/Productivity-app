@@ -18,16 +18,18 @@ def home():
 @login_required
 def task_page():
     if request.method == 'POST':
-        task = request.form.get('task')
+        description = request.form.get('description')
+        category = request.form.get('category')
+        completed = False
         selected_date = request.form.get('task_due_date') # Get date from form
 
         if not selected_date:
             flash('Please select a date!', category='error')
-        if len(task) < 1:
+        if len(description) < 1:
             flash('Task is too short', category='error')
         else:
             task_date_obj = datetime.strptime(selected_date, '%Y-%m-%d').date()
-            new_task = Task(description=task, task_due_date=task_date_obj, user_id=current_user.id)
+            new_task = Task(description=description, category=category, completed=completed, task_due_date=task_date_obj, user_id=current_user.id)
             db.session.add(new_task)
             db.session.commit()
             flash('Task added', category='success')
@@ -52,9 +54,12 @@ def task_page():
             header = task.task_due_date.strftime('%A, %B %d')
         elif task.task_due_date > start_next_week and task.task_due_date < end_next_week:
              header = "Next week"
+        elif task.task_due_date < today:
+            header = "Past"
         else:
              header = "Future tasks"
         
+
         if header not in grouped_tasks:
             grouped_tasks[header] = []
         grouped_tasks[header].append(task)
