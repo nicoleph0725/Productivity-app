@@ -48,14 +48,14 @@ def task_page():
         # Check if the task date is today
         if task.task_due_date == today:
             header = "Today"
+        elif task.task_due_date < today:
+            header = "Past"
         elif task.task_due_date == tomorrow:
             header = "Tomorrow"
         elif task.task_due_date < start_next_week:
             header = task.task_due_date.strftime('%A, %B %d')
         elif task.task_due_date > start_next_week and task.task_due_date < end_next_week:
              header = "Next week"
-        elif task.task_due_date < today:
-            header = "Past"
         else:
              header = "Future tasks"
         

@@ -50,6 +50,22 @@
             <div id="tasks">
                 {% for header, tasks in grouped_tasks.items() %}
                     {% if header not in ["Next week", "Future tasks"] %}
+                        {% if header in ["Past"] %}
+                            <h4 class="mt-4 font-weight-bold text-muted border-bottom pb-2">{{ header }}</h4>
+                            <ul class="list-group list-group-flush mb-3">
+                            {% for task in tasks %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="d-flex flex-column">
+                                <h5 class="font-weight-bold text-muted">{{ task.category }}</h5>
+                                <span class="text-muted">{{ task.description }}</span>
+                                </div>
+                                <button type="button" class="close text-danger" onClick="deleteTask('{{ task.id }}')">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
                         <h4 class="mt-4 font-weight-bold text-dark border-bottom pb-2">{{ header }}</h4>
                         <ul class="list-group list-group-flush mb-3">
                             {% for task in tasks %}
@@ -64,6 +80,7 @@
                             </li>
                             {% endfor %}
                         </ul>
+                        {% endif %}
                     {% endif %}
                 {% endfor %}
             </div>
@@ -80,7 +97,7 @@
                         {% for task in tasks %}
                         <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center">
                             <div class="d-flex flex-column">
-                            <span class="text-muted">{{ task.category }}</span>
+                            <span class="font-weight-bold text-muted">{{ task.category }}</span>
                             <span class="text-muted">{{ task.description }}</span>
                             </div>
                             <button type="button" class="close" onClick="deleteTask('{{ task.id }}')">
