@@ -45,8 +45,10 @@ def task_page():
     # Grouping logic
     grouped_tasks = {}
     for task in user_tasks:
+        if task.completed:
+            header = "Completed"
         # Check if the task date is today
-        if task.task_due_date == today:
+        elif task.task_due_date == today:
             header = "Today"
         elif task.task_due_date < today:
             header = "Past"
@@ -54,7 +56,7 @@ def task_page():
             header = "Tomorrow"
         elif task.task_due_date < start_next_week:
             header = task.task_due_date.strftime('%A, %B %d')
-        elif task.task_due_date > start_next_week and task.task_due_date < end_next_week:
+        elif task.task_due_date >= start_next_week and task.task_due_date < end_next_week:
              header = "Next week"
         else:
              header = "Future tasks"
@@ -78,3 +80,17 @@ def delete_task():
             db.session.delete(task)
             db.session.commit()
     return jsonify({})
+
+@main_views.route('/toggle-complete', methods=['POST'])
+def toggle_complete():
+    data = json.loads(request.data)
+    task_id = data['taskId']
+    
+    task = Task.query.get(task_id)
+    
+    if task:
+        # This flips True to False and vice versa
+        task.completed = not task.completed 
+        db.session.commit()
+        
+    return jsonify({}) 
