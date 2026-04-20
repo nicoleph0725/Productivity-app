@@ -1,37 +1,123 @@
-{% extends "base.html" %} 
+{% extends "base.html" %}
 {% block title %}Tasks{% endblock %}
 
+{# Delete control — main list uses danger styling; sidebar uses neutral close button #}
+{% macro task_delete_button(task, danger=True) %}
+<button
+    type="button"
+    class="close{% if danger %} text-danger{% endif %}"
+    onClick="deleteTask('{{ task.id }}')"
+>
+    <span aria-hidden="true">&times;</span>
+</button>
+{% endmacro %}
+
+{% macro task_checkbox(task) %}
+<input
+    type="checkbox"
+    class="mr-3"
+    style="width: 20px; height: 20px;"
+    onclick="toggleComplete('{{ task.id }}')"
+>
+{% endmacro %}
+
+{# Main column: checkbox + category + description #}
+{% macro task_row_main(task, is_past=False) %}
+<li
+    id="task-{{ task.id }}"
+    class="list-group-item d-flex justify-content-between align-items-center"
+>
+    <div class="d-flex align-items-center">
+        {{ task_checkbox(task) }}
+        <div class="d-flex flex-column">
+            <h5 class="font-weight-bold{% if is_past %} mb-0{% endif %}">{{ task.category }}</h5>
+            <span class="text-muted">{{ task.description }}</span>
+        </div>
+    </div>
+    {{ task_delete_button(task) }}
+</li>
+{% endmacro %}
+
+{# Completed bucket: no checkbox; strike-through when task.completed (DB) #}
+{% macro task_row_completed(task) %}
+<li
+    id="task-{{ task.id }}"
+    class="list-group-item d-flex justify-content-between align-items-center"
+>
+    <div class="d-flex flex-column">
+        <h5 class="font-weight-bold text-muted{% if task.completed %} strikethrough{% endif %}">{{ task.category }}</h5>
+        <span class="text-muted{% if task.completed %} strikethrough{% endif %}">{{ task.description }}</span>
+    </div>
+    {{ task_delete_button(task) }}
+</li>
+{% endmacro %}
+
+{# Sidebar: “Other tasks” — compact layout #}
+{% macro task_row_sidebar(task) %}
+<li
+    id="task-{{ task.id }}"
+    class="list-group-item bg-transparent d-flex justify-content-between align-items-center"
+>
+    <div class="d-flex flex-column">
+        <span class="font-weight-bold text-muted">{{ task.category }}</span>
+        <span class="text-muted">{{ task.description }}</span>
+    </div>
+    {{ task_delete_button(task, danger=False) }}
+</li>
+{% endmacro %}
+
+{% macro section_heading(title, muted=False) %}
+{% if muted %}
+<h4 class="mt-4 font-weight-bold text-muted border-bottom pb-2">{{ title }}</h4>
+{% else %}
+<h4 class="mt-4 font-weight-bold text-dark border-bottom pb-2">{{ title }}</h4>
+{% endif %}
+{% endmacro %}
+
 {% block content %}
+<style>
+    .strikethrough {
+        text-decoration: line-through;
+    }
+</style>
 <div class="container-fluid">
     <div class="row justify-content-md-center">
         <div class="col-md-8 p-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1>Tasks</h1>
-                <button 
-                    class="btn btn-outline-primary" 
-                    type="button" 
-                    data-toggle="collapse" 
-                    data-target="#sidebarColumn">
+                <button
+                    class="btn btn-outline-primary"
+                    type="button"
+                    data-toggle="collapse"
+                    data-target="#sidebarColumn"
+                >
                     Other Tasks
                 </button>
             </div>
 
-            <form method="POST" class="mb-5 shadow-sm p-3 bg-white rounded"> 
+            <form method="POST" class="mb-5 shadow-sm p-3 bg-white rounded">
                 <div class="form-group">
                     <label for="description">Task Description:</label>
-                    <textarea name="description" id="description" class="form-control" placeholder="What needs doing?" required></textarea>
+                    <textarea
+                        name="description"
+                        id="description"
+                        class="form-control"
+                        placeholder="What needs doing?"
+                        required
+                    ></textarea>
                 </div>
                 <div class="form-group">
                     <label for="task_due_date">Task Date:</label>
-                    <input 
-                        type="date" 
-                        name="task_due_date" 
-                        id="task_due_date" 
-                        class="form-control" 
-                        min="{{ today_date }}" 
-                        required> 
+                    <input
+                        type="date"
+                        name="task_due_date"
+                        id="task_due_date"
+                        class="form-control"
+                        min="{{ today_date }}"
+                        required
+                    >
                 </div>
-                
+
                 <div class="form-group">
                     <label for="category">Category:</label>
                     <select id="category" name="category">
@@ -41,7 +127,7 @@
                         <option value="Other">Other</option>
                     </select>
                 </div>
-                
+
                 <div align="center">
                     <button type="submit" class="btn btn-primary px-5">Add Task</button>
                 </div>
@@ -50,73 +136,24 @@
             <div id="tasks">
                 {% for header, tasks in grouped_tasks.items() %}
                     {% if header not in ["Next week", "Future tasks", "Completed"] %}
-                        {% if header in ["Past"] %}
-                            <h4 class="mt-4 font-weight-bold text-muted border-bottom pb-2">{{ header }}</h4>
-                            <ul class="list-group list-group-flush mb-3">
-                            {% for task in tasks %}
-                            <li id="task-{{ task.id }}" class="list-group-item d-flex justify-content-between align-items-center">
-
-                                <div class="d-flex align-items-center"> 
-                                    <input type="checkbox" 
-                                        class="mr-3" 
-                                        style="width: 20px; height: 20px;"
-                                        onclick="toggleComplete('{{ task.id }}')">
-
-                                    <div class="d-flex flex-column"> 
-                                        <h5 class="font-weight-bold mb-0">{{ task.category }}</h5>
-                                        <span class="text-muted">{{ task.description }}</span>
-                                    </div> 
-                                </div>
-
-                                <button type="button" class="close text-danger" onClick="deleteTask('{{ task.id }}')">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                        {% else %}
-                        <h4 class="mt-4 font-weight-bold text-dark border-bottom pb-2">{{ header }}</h4>
+                        {% set is_past = (header == "Past") %}
+                        {{ section_heading(header, muted=is_past) }}
                         <ul class="list-group list-group-flush mb-3">
                             {% for task in tasks %}
-                            <li id="task-{{ task.id }}" class="list-group-item d-flex justify-content-between align-items-center">
-                                <div class="d-flex align-items-center">
-
-                                <input type="checkbox" 
-                                        class="mr-3" 
-                                        style="width: 20px; height: 20px;"
-                                        onclick="toggleComplete('{{ task.id }}')">
-                                    
-                                <div class="d-flex flex-column"> 
-                                <h5 class="font-weight-bold">{{ task.category }}</h5>
-                                <span class="text-muted">{{ task.description }}</span>
-                                </div>
-                                </div>
-                                <button type="button" class="close text-danger" onClick="deleteTask('{{ task.id }}')">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </li>
+                                {{ task_row_main(task, is_past=is_past) }}
                             {% endfor %}
                         </ul>
-                        {% endif %}
                     {% endif %}
                 {% endfor %}
             </div>
 
-             <div >
+            <div>
                 {% for header, tasks in grouped_tasks.items() %}
                     {% if header in ["Completed"] %}
-                        <h4 class="mt-4 font-weight-bold text-dark border-bottom pb-2">{{ header }}</h4>
+                        {{ section_heading(header, muted=False) }}
                         <ul class="list-group list-group-flush mb-3">
                             {% for task in tasks %}
-                            <li id="task-{{ task.id }}" class="list-group-item d-flex justify-content-between align-items-center">
-                                <div class="d-flex flex-column">
-                                <h5 class="font-weight-bold text-muted">{{ task.category }}</h5>
-                                <span class="text-muted">{{ task.description }}</span>
-                                </div>
-                                <button type="button" class="close text-danger" onClick="deleteTask('{{ task.id }}')">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </li>
+                                {{ task_row_completed(task) }}
                             {% endfor %}
                         </ul>
                     {% endif %}
@@ -124,36 +161,28 @@
             </div>
         </div>
 
-        <div class="collapse col-md-4 bg-light border-left vh-100 p-2 shadow-sm" id="sidebarColumn">
+        <div
+            class="collapse col-md-4 bg-light border-left vh-100 p-2 shadow-sm"
+            id="sidebarColumn"
+        >
             <h5 class="font-weight-bold text-secondary">Other Tasks</h5>
             <hr>
-            
+
             {% for header, tasks in grouped_tasks.items() %}
                 {% if header in ["Next week", "Future tasks"] %}
                     <h6 class="mt-4 font-weight-bold text-dark border-bottom pb-2">{{ header }}</h6>
                     <ul class="list-group list-group-flush">
                         {% for task in tasks %}
-                        <li id="task-{{ task.id }}" class="list-group-item bg-transparent d-flex justify-content-between align-items-center">
-                            <div class="d-flex flex-column">
-                            <span class="font-weight-bold text-muted">{{ task.category }}</span>
-                            <span class="text-muted">{{ task.description }}</span>
-                            </div>
-                            <button type="button" class="close" onClick="deleteTask('{{ task.id }}')">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </li>
+                            {{ task_row_sidebar(task) }}
                         {% endfor %}
                     </ul>
                 {% endif %}
             {% endfor %}
-            
+
             {% if not grouped_tasks %}
                 <p class="text-muted italic">No future tasks scheduled.</p>
             {% endif %}
         </div>
-
-
     </div>
 </div>
-
 {% endblock %}
