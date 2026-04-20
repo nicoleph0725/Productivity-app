@@ -66,9 +66,21 @@
 </li>
 {% endmacro %}
 
-{% macro section_heading(title, muted=False) %}
-{% if muted %}
+{% macro section_heading(title, muted=False, completed=False) %}
+{% if muted and not completed %}
 <h4 class="mt-4 font-weight-bold text-muted border-bottom pb-2">{{ title }}</h4>
+{% elif completed %}
+<div class="d-flex align-items-center mt-4">
+    <h4 class="font-weight-bold text-dark mb-0 me-2">
+        {{ title }}
+    </h4>
+    <button 
+      class="btn btn-link btn-lg text-decoration-none text-dark p-2" 
+      type="button" 
+      onclick="toggleCompletedTasks()">
+        <span id="taskArrow" class="arrow-icon" style="display:inline-block; transition: 0.2s;">▶</span>
+    </button>
+</div>
 {% else %}
 <h4 class="mt-4 font-weight-bold text-dark border-bottom pb-2">{{ title }}</h4>
 {% endif %}
@@ -137,7 +149,7 @@
                 {% for header, tasks in grouped_tasks.items() %}
                     {% if header not in ["Next week", "Future tasks", "Completed"] %}
                         {% set is_past = (header == "Past") %}
-                        {{ section_heading(header, muted=is_past) }}
+                        {{ section_heading(header, muted=is_past, completed=False) }}
                         <ul class="list-group list-group-flush mb-3">
                             {% for task in tasks %}
                                 {{ task_row_main(task, is_past=is_past) }}
@@ -150,16 +162,18 @@
             <div>
                 {% for header, tasks in grouped_tasks.items() %}
                     {% if header in ["Completed"] %}
-                        {{ section_heading(header, muted=False) }}
-                        <ul class="list-group list-group-flush mb-3">
-                            {% for task in tasks %}
-                                {{ task_row_completed(task) }}
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
-                {% endfor %}
+                        {{ section_heading(header, muted=False, completed=True) }}
+                            <div id="completedTasksDiv" class="d-none">
+                                <ul class="list-group list-group-flush mb-3">
+                                    {% for task in tasks %}
+                                        {{ task_row_completed(task) }}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
             </div>
-        </div>
 
         <div
             class="collapse col-md-4 bg-light border-left vh-100 p-2 shadow-sm"

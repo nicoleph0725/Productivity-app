@@ -32,3 +32,23 @@ function toggleComplete(taskId) {
         }
     });
 }
+
+//function toggleCompletedTasks() {
+    //const completedTasksDiv = document.getElementById('completedTasksDiv');
+    //const taskArrow = document.getElementById('taskArrow');
+    //completedTasksDiv.classList.toggle('d-none');
+    //taskArrow.classList.toggle('arrow-icon-rotated');
+//}
+function toggleCompletedTasks() {
+    const taskDiv = document.getElementById('completedTasksDiv');
+    const arrow = document.getElementById('taskArrow');
+
+    // Toggle the 'd-none' class (Bootstrap's class for display: none)
+    if (taskDiv.classList.contains('d-none')) {
+        taskDiv.classList.remove('d-none'); // Show it
+        arrow.style.transform = 'rotate(90deg)'; // Rotate arrow
+    } else {
+        taskDiv.classList.add('d-none'); // Hide it
+        arrow.style.transform = 'rotate(0deg)'; // Reset arrow
+    }
+}
