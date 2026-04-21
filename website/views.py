@@ -120,6 +120,7 @@ def get_tasks():
         Task.query.filter(
             Task.user_id == current_user.id,
             Task.task_due_date >= first_day_of_month,
+            Task.completed == False,
         )
         .order_by(Task.task_due_date.asc())
         .all()
@@ -130,9 +131,11 @@ def get_tasks():
             'title': f'{task.category}: {task.description}',
             'start': task.task_due_date.isoformat(),
             'allDay': True,
-            'category': task.category,
+            'extendedProps': {
+                'category': task.category,
+                'description': task.description,
+            },
         }
         for task in tasks
     ]
-
     return jsonify(events)

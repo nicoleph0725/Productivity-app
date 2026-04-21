@@ -1,42 +1,17 @@
 {% extends "base.html" %}
 {% block title %}Calendar{% endblock %}
 
-{% block content %}
-<div class="container-fluid mt-4">
-    <div id="full-calendar-render"></div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    var calendarEl = document.getElementById('full-calendar-render');
-    
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-      initialView: 'dayGridMonth',
-      height: 'auto', // Ensures no scrollbar
-      headerToolbar: {
-        left: 'prev,next today',
-        center: 'title',
-        right: 'dayGridMonth'
-      },
-      events: '/get-tasks',
-      // Removes the default borders from the library for a flatter appearance
-      themeSystem: 'standard' 
-    });
-
-    calendar.render();
-  });
-</script>
+{% block extra_head %}
+<link rel="stylesheet" href="https://unpkg.com/tippy.js@6/dist/tippy.css" />
+<script src="https://unpkg.com/@popperjs/core@2"></script>
+<script src="https://unpkg.com/tippy.js@6"></script>
 
 <style>
-    /* 1. Make the calendar background match the page */
     .fc {
         background: transparent;
         border: none !important;
     }
 
-    /* 2. Style the headers and day numbers for a flat design */
     .fc-col-header-cell {
         background-color: transparent;
         border-bottom: 2px solid #dee2e6 !important;
@@ -45,12 +20,10 @@
         border-right: none !important;
     }
 
-    /* 3. Make grid lines subtle */
     .fc-td, .fc-daygrid-day {
         border: 1px solid #e9ecef !important;
     }
 
-    /* 4. Category Badges (Flat style) */
     .fc-event {
         border: none !important;
         border-radius: 2px !important;
@@ -59,10 +32,65 @@
         box-shadow: none !important;
     }
 
-    /* 5. Title Styling */
     .fc-toolbar-title {
-        font-weight: 300; /* Lighter font for a modern flat feel */
+        font-weight: 300;
         color: #495057;
     }
 </style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div id="calendar"></div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    let calendarEl = document.getElementById('calendar');
+    if (!calendarEl) {
+      return;
+    }
+
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      height: 'auto',
+      contentHeight: 'auto',
+      headerToolbar: {
+        start: 'prev,next today',
+        center: 'title',
+        end: ''
+      },
+      events: '/get-tasks',
+      eventContent: function(arg) {
+        let cat = arg.event.extendedProps.category;
+        let desc = arg.event.extendedProps.description;
+
+        var customHtml = document.createElement('div');
+        customHtml.innerHTML = `<strong>${cat}:</strong> ${desc}`;
+        customHtml.style.overflow = 'hidden';
+        customHtml.style.textOverflow = 'ellipsis';
+        customHtml.style.whiteSpace = 'nowrap';
+
+        return { domNodes: [customHtml] };
+      },
+      eventDidMount: function(info) {
+    let cat = info.event.extendedProps.category;
+    let desc = info.event.extendedProps.description;
+    
+    tippy(info.el, {
+        content: `<strong>${cat}</strong><br>${desc}`,
+        allowHTML: true,
+        placement: 'top',
+        delay: [0, 0], // 0ms delay to show, 0ms delay to hide
+        theme: 'light-border', 
+    });
+  }
+  });
+
+    calendar.render();
+  });
+</script>
 {% endblock %}
