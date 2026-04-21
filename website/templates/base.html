@@ -14,6 +14,7 @@
             href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
             crossorigin="anonymous"
          />
+        {% block extra_head %}{% endblock %}
         <title>{% block title %}Home{% endblock %}</title>
     </head>
     <body>
@@ -31,6 +32,7 @@
                 {%if user.is_authenticated %}
                 <a class="nav-item nav-link" id="home" href="/">Home</a>
                 <a class="nav-item nav-link" id="tasks" href="/task_page">Tasks</a>
+                <a class="nav-item nav-link" id="nav_calendar" href="/calendar">Calendar</a>
                 <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
                 {% else %}
                 <a class="nav-item nav-link" id="login" href="/login">Login</a>
@@ -88,6 +90,7 @@
       type="text/javascript"
       src="{{ url_for('static', filename='index.js') }}"
     ></script>
+    {% block extra_scripts %}{% endblock %}
     </body>
 
 </html>

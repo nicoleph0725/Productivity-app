@@ -104,3 +104,35 @@ def toggle_complete():
         db.session.commit()
 
     return jsonify({})
+
+
+@main_views.route('/calendar')
+@login_required
+def calendar():
+    return render_template('calendar.html', user=current_user)
+
+
+@main_views.route('/get-tasks')
+@login_required
+def get_tasks():
+    first_day_of_month = date.today().replace(day=1)
+    tasks = (
+        Task.query.filter(
+            Task.user_id == current_user.id,
+            Task.task_due_date >= first_day_of_month,
+        )
+        .order_by(Task.task_due_date.asc())
+        .all()
+    )
+
+    events = [
+        {
+            'title': f'{task.category}: {task.description}',
+            'start': task.task_due_date.isoformat(),
+            'allDay': True,
+            'category': task.category,
+        }
+        for task in tasks
+    ]
+
+    return jsonify(events)

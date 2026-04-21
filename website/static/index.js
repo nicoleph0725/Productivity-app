@@ -33,12 +33,7 @@ function toggleComplete(taskId) {
     });
 }
 
-//function toggleCompletedTasks() {
-    //const completedTasksDiv = document.getElementById('completedTasksDiv');
-    //const taskArrow = document.getElementById('taskArrow');
-    //completedTasksDiv.classList.toggle('d-none');
-    //taskArrow.classList.toggle('arrow-icon-rotated');
-//}
+
 function toggleCompletedTasks() {
     const taskDiv = document.getElementById('completedTasksDiv');
     const arrow = document.getElementById('taskArrow');
